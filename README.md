@@ -1,2 +1,2 @@
-# planchek-store-locator
+# ukrops-store-locator
 Store Locator plugin for Ukrops
