@@ -96,11 +96,30 @@ class Ukrops_Store_Locator {
 			$data = self::getStores();
 			$zip = $_GET["zip"];
 			$radius = $_GET["radius"];
+			$zoom = null;
 			$radiusList = [5, 10, 25, 50];
 
 			if ($radius == null){
 				$radius = 10;
 			}
+
+			//Set Map zoom based on radius requested
+			switch ($radius) {
+		    case 5:
+					$zoom = 12;
+	        break;
+		    case 10:
+					$zoom = 10;
+	        break;
+		    case 25:
+	        $zoom = 9;
+					break;
+				case 50:
+	        $zoom = 8;
+					break;
+		    default:
+		  		$zoom = 10;
+				}
 
 			if ($zip == null){
 				$location['latitude'] = 37.5407;
@@ -199,7 +218,7 @@ class Ukrops_Store_Locator {
 	public function googleAPILookup($address){
 
 	$address = str_replace (" ", "+", urlencode($address));
-	$details_url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$address."&key=AIzaSyDq9dRRK6bRF-okoEA4U7Zp4lK9h9iDtYo";
+	$details_url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$address."&key=AIzaSyDV9ffngNmBtR8tC_9g37OL7QZhEheyxQw";
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $details_url);
