@@ -43,25 +43,6 @@ get_header(); ?>
                   <input id="zip-val" value="<?php echo $zip; ?>" type="text" class="form-control" name="zip" />
                 </div>
 
-                <div class="form-group">
-                  <label>Mile Radius</label>
-                  <select id="radius-val" class="form-control" name="radius">
-										<?php
-									    foreach ($radiusList as $r) {
-												$option ='<option value="'.$r.'"';
-
-												if ($r == $radius) {
-													$option = $option . 'selected="selected"';
-													//echo $r;
-												}
-												$option = $option . '>'. $r .'</option>';
-
-												echo $option;
-											}
-										?>
-                  </select>
-                </div>
-
 								<!--
                 <div class="form-group">
                   <label>Brand</label>
@@ -175,7 +156,6 @@ get_header(); ?>
 		var storeData = JSON.parse($("#store-data").html());
 		var markers = [];
 		var map;
-		var radius = <?php echo $radius ?>;
 		var zoom = <?php echo $zoom; ?>;
 		var zip = <?php echo $zip ?>;
 		var infowindow;
@@ -187,10 +167,6 @@ get_header(); ?>
 				var l;
 
 				clearMarkers();
-
-				if (r !== radius){
-					radius = r;
-				}
 
 				if (z !== zip && z !== NaN){
 
@@ -204,13 +180,13 @@ get_header(); ?>
 							results[0].geometry.location.lng());
 
 						map.setCenter(l);
-						paintData(l, map, radius);
+						paintData(l, map);
 					});
 
 				} else {
 					var center = map.getCenter();
 		 			l = new google.maps.LatLng(center.lat(), center.lng());
-					paintData(l, map, radius)
+					paintData(l, map)
 				}
 
 			return false;
@@ -227,11 +203,11 @@ get_header(); ?>
 					location[0] = results[0].geometry.location.lat();
 					location[1] = results[0].geometry.location.lng();
 
-					drawMap(location, radius, zoom);
+					drawMap(location, zoom);
 			});
 		}
 
-		function drawMap(location, radius, zoom){
+		function drawMap(location, zoom){
 
 				var location = new google.maps.LatLng(location[0], location[1]);
 
@@ -241,10 +217,11 @@ get_header(); ?>
 	        	scrollwheel: false,
 	    	});
 
-				map.addListener('center_changed', function() { mapScroll(map);});
+				map.addListener('bounds_changed', function() { mapScroll(map);});
 
-				var mapScroll = debounce(function(map){resetMap(map);}, 500);
-				paintData(location, map, radius);
+				var mapScroll = debounce(function(map){
+					resetMap(map);
+				}, 200);
 		}
 
 		//Reset Map after scroll
@@ -255,12 +232,12 @@ get_header(); ?>
 			var center = map.getCenter();
 			var location = new google.maps.LatLng(center.lat(), center.lng());
 
-			paintData(location, map, radius);
+			paintData(location, map);
 
 		}
 
 		//Loop through data and create data points
-		function paintData(location, map, radius) {
+		function paintData(location, map) {
 
 				var tableData = [];
 
@@ -268,11 +245,11 @@ get_header(); ?>
 
 						var position = new google.maps.LatLng(storeData[i].latitude, storeData[i].longitude);
 						var dist = google.maps.geometry.spherical.computeDistanceBetween(location, position);
-						var r = radius;
-			 			dist *= 0.000621371192;
+						dist *= 0.000621371192;
 
-						if (dist < r){
-							addMarker(position, map, storeData[i]);
+						addMarker(position, map, storeData[i]);
+
+						if (map.getBounds().contains(position)){
 							tableData.push(addTableData(storeData[i], dist));
 						}
 				}
@@ -289,13 +266,13 @@ get_header(); ?>
 			});
 
 			marker.addListener('click', function() {
-				test(map, marker, storeData);
+				info(map, marker, storeData);
 			});
 
 			markers.push(marker);
 		}
 
-		function test(map, marker, storeData){
+		function info(map, marker, storeData){
 
 			var content = '<h5>'+storeData.name+'</h5>'+
 										'<div><a href="https://www.google.com/maps/place/'+

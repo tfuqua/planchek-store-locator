@@ -95,37 +95,13 @@ class Ukrops_Store_Locator {
 
 			$data = self::getStores();
 			$zip = $_GET["zip"];
-			$radius = $_GET["radius"];
-			$zoom = null;
-			$radiusList = [5, 10, 25, 50];
+			$zoom = 10;
 
 			$firstVisit = false;
 
-			if ($radius == null && $zip == null){
+			if ($zip == null){
 				$firstVisit = true;
 			}
-
-			if ($radius == null){
-				$radius = 10;
-			}
-
-			//Set Map zoom based on radius requested
-			switch ($radius) {
-		    case 5:
-					$zoom = 12;
-	        break;
-		    case 10:
-					$zoom = 10;
-	        break;
-		    case 25:
-	        $zoom = 9;
-					break;
-				case 50:
-	        $zoom = 7;
-					break;
-		    default:
-		  		$zoom = 10;
-				}
 
 			if ($zip == null){
 				$zip = 23219;
