@@ -99,6 +99,12 @@ class Ukrops_Store_Locator {
 			$zoom = null;
 			$radiusList = [5, 10, 25, 50];
 
+			$firstVisit = false;
+
+			if ($radius == null && $zip == null){
+				$firstVisit = true;
+			}
+
 			if ($radius == null){
 				$radius = 10;
 			}
@@ -115,17 +121,14 @@ class Ukrops_Store_Locator {
 	        $zoom = 9;
 					break;
 				case 50:
-	        $zoom = 8;
+	        $zoom = 7;
 					break;
 		    default:
 		  		$zoom = 10;
 				}
 
 			if ($zip == null){
-				$location['latitude'] = 37.5407;
-				$location['longitude'] = -77.4360;
-			} else {
-				$location = self::googleAPILookup($zip);
+				$zip = 23219;
 			}
 
 			include($file);
@@ -209,6 +212,7 @@ class Ukrops_Store_Locator {
 				'state' 			=> $line[5],
 				'zip'					=> $line[6],
 				'phone' 			=> $line[7],
+				'products'  	=> $line[8],
 				'latitude' 		=> $lat,
 				'longitude'   => $long,
 			)
@@ -260,6 +264,7 @@ class Ukrops_Store_Locator {
 				state varchar(55) NOT NULL,
 				zip varchar(10) NOT NULL,
 				phone varchar(25) NOT NULL,
+				products varchar(255) NOT NULL,
 				latitude double DEFAULT NULL,
 				longitude double DEFAULT NULL,
 			  PRIMARY KEY  (id)
