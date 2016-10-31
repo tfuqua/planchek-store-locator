@@ -94,17 +94,26 @@ class Ukrops_Store_Locator {
 		if ( file_exists( $file ) ) {
 
 			$data = self::getStores();
+			$brandList = self::getBrands();
+
 			$zip = $_GET["zip"];
+			$brand = $_GET["brand"];
 			$zoom = 10;
 
 			$firstVisit = false;
-
 			if ($zip == null){
 				$firstVisit = true;
 			}
 
 			if ($zip == null){
-				$zip = 23219;
+
+				$ip = $_SERVER['REMOTE_ADDR'];
+				$details = json_decode(file_get_contents("http://ipinfo.io/{$ip}"));
+				$zip =$details->postal;
+
+				if ($zip == null){
+					$zip = 23219;
+				}
 			}
 
 			include($file);
@@ -142,6 +151,8 @@ class Ukrops_Store_Locator {
 	    $file = $_FILES['store-file'];
 	    $csvfile = fopen($file['tmp_name'], "r");
 
+			self::deleteRecords();
+
 			$i = 0;
 	    while (($line = fgetcsv($csvfile)) !== FALSE) {
 				if ($i > 0) { //So We Dont' Insert heading row
@@ -152,6 +163,8 @@ class Ukrops_Store_Locator {
 
 	    fclose($csvfile);
 	  }
+
+		//wp_redirect(admin_url('admin.php?page=stores'));
 	}
 
 	public function getStores(){
@@ -159,14 +172,23 @@ class Ukrops_Store_Locator {
 		$table_name = $wpdb->prefix . "stores";
 
 		$rows = $wpdb->get_results( "SELECT * FROM $table_name" );
+
 		return ($rows);
 	}
 
-	public function insertRecord($line){
+	public function deleteRecords(){
+		global $wpdb;
+		$table_name = $wpdb->prefix . "stores";
+
+		$sql = "DELETE FROM $table_name WHERE id > 0";
+		$wpdb->query($sql);
+	}
+
+	public function insertRecord($line, $id){
 
 		global $wpdb;
 		$table_name = $wpdb->prefix . "stores";
-		$address = $line[3]. ', '.$line[4] . '+' . $line[5] . '+' . $line[6];
+		$address = $line[2]. ', '.$line[3] . '+' . $line[4] . '+' . $line[5];
 
 		$addressInfo = self::googleAPILookup($address);
 		$lat = null;
@@ -177,22 +199,36 @@ class Ukrops_Store_Locator {
 			$long = $addressInfo['longitude'];
 		}
 
+		echo $addressInfo['latitude'] . ' , ' . $addressInfo['longitude'] . ' - ';
+		echo $address;
+		echo '<br/></br/>';
+
 		$wpdb->insert(
 			$table_name,
 			array(
-				'id' 					=> $line[0],
-				'brand'	 			=> $line[1],
-				'store_name'	=> $line[2],
-				'address' 		=> $line[3],
-				'city' 				=> $line[4],
-				'state' 			=> $line[5],
-				'zip'					=> $line[6],
-				'phone' 			=> $line[7],
-				'products'  	=> $line[8],
+				'id' 					=> $id,
+				'brand'	 			=> $line[0],
+				'store_name'	=> $line[1],
+				'address' 		=> $line[2],
+				'city' 				=> $line[3],
+				'state' 			=> $line[4],
+				'zip'					=> $line[5],
+				'phone' 			=> $line[6],
+				'products'  	=> $line[7],
 				'latitude' 		=> $lat,
 				'longitude'   => $long,
 			)
 		);
+	}
+
+	public function getBrands(){
+		global $wpdb;
+		$table_name = $wpdb->prefix . "stores";
+
+		$sql = "SELECT DISTINCT brand from $table_name";
+		$brands = $wpdb->get_results("SELECT DISTINCT brand from $table_name");
+
+		return ($brands);
 	}
 
 	public function googleAPILookup($address){

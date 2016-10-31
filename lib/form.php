@@ -30,8 +30,7 @@
     <th>Address</th>
     <th>State</th>
     <th>Zip</th>
-    <th>Latitude</th>
-    <th>Longitude</th>
+    <th>Location</th>
     <th>Phone</th>
   </tr>
   <?php
@@ -43,8 +42,7 @@
           <td><?php echo $store->address ?></td>
           <td><?php echo $store->state ?></td>
           <td><?php echo $store->zip ?></td>
-          <td><?php echo $store->latitude ?></td>
-          <td><?php echo $store->longitude ?></td>
+          <td><?php echo $store->latitude; echo $store->longitude; ?></td>
           <td><?php echo $store->phone ?></td>
         </tr>
     <?php

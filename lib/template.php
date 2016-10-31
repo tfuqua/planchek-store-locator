@@ -43,15 +43,17 @@ get_header(); ?>
                   <input id="zip-val" value="<?php echo $zip; ?>" type="text" class="form-control" name="zip" />
                 </div>
 
-								<!--
                 <div class="form-group">
                   <label>Brand</label>
                   <select class="form-control" name="brand">
-                    <option value="1">All Brands</option>
-                    <option value="2">Whitehouse</option>
-                    <option value="3">Ukrops</option>
+                    <option value="all">All Brands</option>
+										<?php foreach($brandList as $brands) { ?>
+											<option value="<?php echo $brands->brand ?>" <?php if ($brands->brand == $brand){echo 'selected';}?>>
+												<?php echo $brands->brand ?>
+											</option>
+										<?php }?>
                   </select>
-                </div>-->
+                </div>
 
                 <div class="form-group">
                   <input type="submit" value="Search" class="btn search"/>
@@ -99,7 +101,7 @@ get_header(); ?>
 					<div class="col-xs-12 hidden-xs">
 						<br />
 						<table id="store-table" class="table store-locator">
-							<thead>
+							<!--<thead>
 								<tr>
 									<th>Store Name</th>
 									<th>Distance</th>
@@ -107,10 +109,10 @@ get_header(); ?>
 									<th>Phone</th>
 									<th>Products</th>
 								</tr>
-							</thead>
-							<tbody>
+							</thead>-->
+							<!--<tbody>
 
-							</tbody>
+							</tbody> -->
 						</table>
 					</div>
 				</div> <!-- row -->
@@ -123,7 +125,6 @@ get_header(); ?>
 	</div><!-- #primary -->
 
 	<?php
-	if (count($data) > 0) {
 		$i = 1;
 		$storeSize = count($data);
 		echo '<div id="store-data" style="display:none;">[';
@@ -131,6 +132,7 @@ get_header(); ?>
 			$storeJSON = 	'{'.
 										'"address": "' 	. $store->address . '", '.
 										'"name": "' 		. $store->store_name . '", '.
+										'"brand": "' 		. $store->brand . '", '.
 										'"phone": "' 		. $store->phone . '", '.
 										'"city": "' 		. $store->city . '", '.
 										'"state": "' 		. $store->state . '", '.
@@ -146,18 +148,22 @@ get_header(); ?>
 			}
 			$i++;
 		}
-		echo ']</div>';
-	} ?>
-
-	<br /><br />
+		echo ']</div>';?>
+	<br />
 	<?php if (!$firstVisit) { ?>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDV9ffngNmBtR8tC_9g37OL7QZhEheyxQw&callback=initMap&libraries=geometry"
+  async defer></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
   <script>
 
 		var storeData = JSON.parse($("#store-data").html());
+		var table; //$('#store-table').DataTable();
 		var markers = [];
 		var map;
 		var zoom = <?php echo $zoom; ?>;
 		var zip = <?php echo $zip ?>;
+		var brand = '<?php echo $brand ?>';
 		var infowindow;
 
 		function newMap() {
@@ -320,6 +326,7 @@ get_header(); ?>
 					return 0;
 				});
 
+				/*
 				for (var i = 0; i < data.length; i++) {
 					rows += '<tr><td>' +
 									data[i].name + '</td><td>' +
@@ -327,13 +334,46 @@ get_header(); ?>
 									data[i].address + '</td><td>' +
 									data[i].phone + '</td><td>' +
 									data[i].products + '</td></tr>';
-				}
-
-			} else {
-				rows += '<tr><td colspan="100%"> No Results to Display </td></tr>';
+				}*/
+			}
+			if (typeof table !== 'undefined'){
+				table.destroy();
 			}
 
-				$("#store-table tbody").html(rows);
+			$('#store-table').empty();
+			table = $('#store-table').DataTable({
+					order: [],
+					columns: [
+				                {'title': 'Name', 'data': 'name'},
+												{'title': 'Distance', 'data': 'distance',
+												'sSortDataType': 'dom-text', 'sType': 'numeric-comma',
+												'render':
+													function (data, type, row) {
+														return data + ' miles';
+													},
+												},
+												{'title': 'Address', 'data': 'address'},
+												{'title': 'Phone', 'data': 'phone' },
+												{'title': 'Products', 'data': 'products' }
+				              ],
+					 data: data
+			 });
+
+			 jQuery.fn.dataTableExt.oSort['numeric-comma-asc'] = function(a,b) {
+				 var x = (a == "-") ? 0 : a.replace( /,/, "." );
+				 var y = (b == "-") ? 0 : b.replace( /,/, "." );
+				 x = parseFloat( x );
+				 y = parseFloat( y );
+				 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+			 };
+
+			 jQuery.fn.dataTableExt.oSort['numeric-comma-desc'] = function(a,b) {
+				 var x = (a == "-") ? 0 : a.replace( /,/, "." );
+				 var y = (b == "-") ? 0 : b.replace( /,/, "." );
+				 x = parseFloat( x );
+				 y = parseFloat( y );
+				 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+			 };
 		}
 
 		//Debounce Function
@@ -353,9 +393,6 @@ get_header(); ?>
 			};
 
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDV9ffngNmBtR8tC_9g37OL7QZhEheyxQw&callback=initMap&libraries=geometry"
-  async defer></script>
-
 <?php
 	} else { ?>
 		<script>
