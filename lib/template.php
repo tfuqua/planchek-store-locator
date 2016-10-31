@@ -45,7 +45,7 @@ get_header(); ?>
 
                 <div class="form-group">
                   <label>Brand</label>
-                  <select class="form-control" name="brand">
+                  <select id="brand-val" class="form-control" name="brand">
                     <option value="all">All Brands</option>
 										<?php foreach($brandList as $brands) { ?>
 											<option value="<?php echo $brands->brand ?>" <?php if ($brands->brand == $brand){echo 'selected';}?>>
@@ -100,20 +100,7 @@ get_header(); ?>
 				<div class="row">
 					<div class="col-xs-12 hidden-xs">
 						<br />
-						<table id="store-table" class="table store-locator">
-							<!--<thead>
-								<tr>
-									<th>Store Name</th>
-									<th>Distance</th>
-									<th>Address</th>
-									<th>Phone</th>
-									<th>Products</th>
-								</tr>
-							</thead>-->
-							<!--<tbody>
-
-							</tbody> -->
-						</table>
+						<table id="store-table" class="table store-locator"></table>
 					</div>
 				</div> <!-- row -->
 				<?php
@@ -151,7 +138,6 @@ get_header(); ?>
 		echo ']</div>';?>
 	<br />
 	<?php if (!$firstVisit) { ?>
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDV9ffngNmBtR8tC_9g37OL7QZhEheyxQw&callback=initMap&libraries=geometry"
   async defer></script>
   <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
@@ -166,14 +152,16 @@ get_header(); ?>
 		var brand = '<?php echo $brand ?>';
 		var infowindow;
 
+		console.log(brand);
+
 		function newMap() {
 
 				var z = parseInt($("#zip-val").val());
-				var r = parseInt($("#radius-val").val());
+				brand = $("#brand-val").val();
+
 				var l;
 
 				clearMarkers();
-
 				if (z !== zip && z !== NaN){
 
 					zip = z;
@@ -242,12 +230,21 @@ get_header(); ?>
 
 		}
 
+		function filterByBrand(store){
+			if (store.brand.includes(brand)){
+				return true;
+			} else {
+				return false;
+			}
+		}
+
 		//Loop through data and create data points
 		function paintData(location, map) {
 
 				var tableData = [];
+				var filteredData = (brand === 'all') ? storeData : storeData.filter(filterByBrand);
 
-				for (var i = 0; i < storeData.length; i++) {
+				for (var i = 0; i < filteredData.length; i++) {
 
 						var position = new google.maps.LatLng(storeData[i].latitude, storeData[i].longitude);
 						var dist = google.maps.geometry.spherical.computeDistanceBetween(location, position);
@@ -298,9 +295,9 @@ get_header(); ?>
 
 		//Clear Map Markers
 		function clearMarkers() {
-			/*for (var i = 0; i < markers.length; i++) {
+			for (var i = 0; i < markers.length; i++) {
 				markers[i].setMap(null);
-			}*/
+			}
     }
 
 		//Add Data row to Table
@@ -319,61 +316,38 @@ get_header(); ?>
 			var rows = '';
 
 			if (data.length > 0) {
-
 				data.sort(function (a, b) {
 					if (a.distance > b.distance) { return 1;  }
 					if (a.distance < b.distance) { return -1; }
 					return 0;
 				});
-
-				/*
-				for (var i = 0; i < data.length; i++) {
-					rows += '<tr><td>' +
-									data[i].name + '</td><td>' +
-									data[i].distance + ' miles </td><td>' +
-									data[i].address + '</td><td>' +
-									data[i].phone + '</td><td>' +
-									data[i].products + '</td></tr>';
-				}*/
 			}
 			if (typeof table !== 'undefined'){
 				table.destroy();
 			}
 
 			$('#store-table').empty();
+
 			table = $('#store-table').DataTable({
-					order: [],
+					ordering: false,
+					searching: false,
+					lengthChange: false,
+					pageLength: 5,
 					columns: [
-				                {'title': 'Name', 'data': 'name'},
-												{'title': 'Distance', 'data': 'distance',
-												'sSortDataType': 'dom-text', 'sType': 'numeric-comma',
-												'render':
-													function (data, type, row) {
-														return data + ' miles';
-													},
-												},
-												{'title': 'Address', 'data': 'address'},
-												{'title': 'Phone', 'data': 'phone' },
-												{'title': 'Products', 'data': 'products' }
+	          {'title': 'Name', 'data': 'name'},
+						{'title': 'Distance', 'data': 'distance',
+						'sSortDataType': 'dom-text', 'sType': 'numeric-comma',
+						'render':
+							function (data, type, row) {
+								return data + ' miles';
+							},
+						},
+						{'title': 'Address', 'data': 'address'},
+						{'title': 'Phone', 'data': 'phone' },
+						{'title': 'Products', 'data': 'products' }
 				              ],
 					 data: data
 			 });
-
-			 jQuery.fn.dataTableExt.oSort['numeric-comma-asc'] = function(a,b) {
-				 var x = (a == "-") ? 0 : a.replace( /,/, "." );
-				 var y = (b == "-") ? 0 : b.replace( /,/, "." );
-				 x = parseFloat( x );
-				 y = parseFloat( y );
-				 return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-			 };
-
-			 jQuery.fn.dataTableExt.oSort['numeric-comma-desc'] = function(a,b) {
-				 var x = (a == "-") ? 0 : a.replace( /,/, "." );
-				 var y = (b == "-") ? 0 : b.replace( /,/, "." );
-				 x = parseFloat( x );
-				 y = parseFloat( y );
-				 return ((x < y) ? 1 : ((x > y) ? -1 : 0));
-			 };
 		}
 
 		//Debounce Function

@@ -101,7 +101,7 @@ class Ukrops_Store_Locator {
 			$zoom = 10;
 
 			$firstVisit = false;
-			if ($zip == null){
+			if ($zip == null && $brand == null){
 				$firstVisit = true;
 			}
 
