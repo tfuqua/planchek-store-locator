@@ -47,16 +47,16 @@ get_header(); ?>
                   <label>Brand</label>
                   <select id="brand-val" class="form-control" name="brand">
                     <option value="all">All Brands</option>
-										<?php foreach($brandList as $brands) { ?>
-											<option value="<?php echo $brands->brand ?>" <?php if ($brands->brand == $brand){echo 'selected';}?>>
-												<?php echo $brands->brand ?>
+										<?php foreach($brandList as $b){ ?>
+											<option value="<?php echo $b ?>" <?php if (strcasecmp($b, $brand) == 0){echo 'selected';}?>>
+												<?php echo $b ?>
 											</option>
 										<?php }?>
                   </select>
                 </div>
 
                 <div class="form-group">
-                  <input type="submit" value="Search" class="btn search"/>
+                  <input type="submit" value="Search" class="button search"/>
                 </div>
               </form>
 
@@ -116,10 +116,22 @@ get_header(); ?>
 		$storeSize = count($data);
 		echo '<div id="store-data" style="display:none;">[';
 		foreach ($data as $store) {
+
+			$brandsArray = "";
+			$brands = unserialize($store->brand);
+			$lastElement = end($brands);
+
+			foreach($brands as $b){
+				$brandsArray .= '"' . $b . '"';
+				if ($b != $lastElement){
+					$brandsArray .= ', ';
+				}
+			}
+
 			$storeJSON = 	'{'.
 										'"address": "' 	. $store->address . '", '.
 										'"name": "' 		. $store->store_name . '", '.
-										'"brand": "' 		. $store->brand . '", '.
+										'"brand": [' 		. $brandsArray . '], '.
 										'"phone": "' 		. $store->phone . '", '.
 										'"city": "' 		. $store->city . '", '.
 										'"state": "' 		. $store->state . '", '.
@@ -145,7 +157,7 @@ get_header(); ?>
 			var map;
 			var zoom = <?php echo $zoom; ?>;
 			var zip = <?php echo $zip ?>;
-			var brand = '<?php echo $brand ?>';
+			var brand = "<?php echo $brand ?>";
 			var infowindow;
 		</script>
 	<?php

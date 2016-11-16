@@ -1,0 +1,15 @@
+table.store-locator{
+  font-size: 14px;
+}
+
+.wrap p{
+  margin-bottom:5px;
+}
+
+.wrap ul {
+  list-style:circle;
+  padding:0 0 0 40px;
+  margin:0;
+  font-size: 14px;
+  font-weight: bold;
+}
