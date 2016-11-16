@@ -33,7 +33,7 @@
     <div class="form-group">
       <label>Upload Store CSV File</label><br />
       <input type="file" name="store-file" value=""
-      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+      accept=".csv" />
     </div>
 
     <p class="submit">
