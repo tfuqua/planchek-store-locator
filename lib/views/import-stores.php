@@ -6,7 +6,7 @@
   <h1>Store Upload</h1>
   <hr />
 
-  <div class="">
+  <div class="ukrops-store">
     <p>
 
       You can use this upload feature to update Ukrop's store data. Please upload a CSV file matching the format below.
