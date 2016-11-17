@@ -157,11 +157,15 @@ function store_scripts() {
 
 function load_admin_style($hook) {
 
+		if( $hook != 'toplevel_page_stores' && $hook != 'store-data_page_data')
+			return;
+
+
 				wp_enqueue_style( 'bootstrap-css', plugin_dir_url( __FILE__ ) . 'lib/css/bootstrap.css', '1.0', false);
 				wp_enqueue_style( 'admin-css', plugin_dir_url( __FILE__ ) . 'lib/css/admin.css', '1.0', false);
-				
+
 				if( $hook != 'toplevel_page_stores')
-					return;
+					return; //JS not needed for form
 
 				wp_enqueue_script( 'datatables', 'https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js', true, '1.0');
 				wp_enqueue_script( 'admin-js', plugin_dir_url( __FILE__ ) . 'lib/js/admin.js', array('datatables'), '1.0', true);
