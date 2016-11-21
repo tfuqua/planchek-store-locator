@@ -151,7 +151,6 @@ get_header(); ?>
 	<br />
 	<?php if (!$firstVisit) { ?>
 		<script>
-			var storeData = JSON.parse($("#store-data").html());
 			var table; //$('#store-table').DataTable();
 			var markers = [];
 			var map;
