@@ -14,7 +14,7 @@ function store_table() {
 
 function handle_post(){
 
-	if(isset($_POST["submit"])) {
+	if(isset($_POST["submit"]) && isset($_FILES['store-file'])) {
 
     $file = $_FILES['store-file'];
     $csvfile = fopen($file['tmp_name'], "r");
@@ -68,26 +68,26 @@ function insertRecord($line, $id){
 	if ($addressInfo != null){
 		$lat = $addressInfo['latitude'];
 		$long = $addressInfo['longitude'];
+
+		$brands = trimBrands($line[0]);
+
+		$wpdb->insert(
+			$table_name,
+			array(
+				'id' 					=> $id,
+				'brand'	 			=> serialize($brands),
+				'store_name'	=> $line[1],
+				'address' 		=> $line[2],
+				'city' 				=> $line[3],
+				'state' 			=> $line[4],
+				'zip'					=> $line[5],
+				'phone' 			=> $line[6],
+				'products'  	=> $line[7],
+				'latitude' 		=> $lat,
+				'longitude'   => $long,
+			)
+		);
 	}
-
-	$brands = trimBrands($line[0]);
-
-	$wpdb->insert(
-		$table_name,
-		array(
-			'id' 					=> $id,
-			'brand'	 			=> serialize($brands),
-			'store_name'	=> $line[1],
-			'address' 		=> $line[2],
-			'city' 				=> $line[3],
-			'state' 			=> $line[4],
-			'zip'					=> $line[5],
-			'phone' 			=> $line[6],
-			'products'  	=> $line[7],
-			'latitude' 		=> $lat,
-			'longitude'   => $long,
-		)
-	);
 }
 
 function validateStore($store){
@@ -142,7 +142,7 @@ function getBrands(){
 function googleAPILookup($address){
 
   $address = str_replace (" ", "+", urlencode($address));
-  $details_url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$address."&key=AIzaSyDV9ffngNmBtR8tC_9g37OL7QZhEheyxQw";
+  $details_url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$address."&key=AIzaSyAGkVBDxjmBGDRlTyqiTLi5qJUu4AP_S3o";
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $details_url);

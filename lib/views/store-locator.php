@@ -76,12 +76,13 @@ get_header(); ?>
 							<?php if( have_rows('brands') ) {
 									while ( have_rows('brands') ) : the_row(); ?>
 										<h3><?php echo get_sub_field('brand'); ?></h3>
-										<div class="store-imgs">
-												<?php while ( have_rows('images') ) : the_row(); ?>
-													<div class="img-wrapper">
-														<?php echo wp_get_attachment_image(get_sub_field('image'), 'full', false, array( 'class' => ''));?>
+										<div class="partner-imgs">
+											<?php while ( have_rows('images') ) : the_row();?>
+													<div class="partner-img">
+														<?php echo wp_get_attachment_image(get_sub_field('image'), 'medium', false, array( 'class' => '')); ?>
 													</div>
-												<?php endwhile;?>
+												<?php
+											endwhile;?>
 										</div>
 									<?php
 									endwhile;

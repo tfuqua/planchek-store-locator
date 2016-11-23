@@ -147,7 +147,7 @@ function store_scripts() {
 	//Only load scripts on page that needs them
 	if (get_page_template_slug() == 'lib/views/store-locator.php') {
 		wp_enqueue_script( 'datatables', 'https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js' , array('ukrops-jquery'), '1.0', true);
-		wp_enqueue_script( 'google-maps', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDV9ffngNmBtR8tC_9g37OL7QZhEheyxQw&libraries=geometry', array(), '1.0', true);
+		wp_enqueue_script( 'google-maps', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGkVBDxjmBGDRlTyqiTLi5qJUu4AP_S3o&libraries=geometry', array(), '1.0', true);
 		wp_enqueue_script( 'store-js', plugin_dir_url( __FILE__ ) . 'lib/js/store-locator.js', array('google-maps'), '1.0', true);
 	} else {
 
