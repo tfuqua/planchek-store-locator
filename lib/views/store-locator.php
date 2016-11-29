@@ -15,7 +15,7 @@ get_header(); ?>
 			<!-- Hero Image -->
 	    <?php if(get_field('hero_image')) { ?>
 	      <?php $background = wp_get_attachment_image_src(get_field('hero_image'), 'full', false); ?>
-		     <div class="hero store-hero" style="background-image: url('<?php echo $background[0] ?>');">
+		     <div class="hero mini-hero" style="background-image: url('<?php echo $background[0] ?>');">
 	         <div class="hero-text-wrapper">
 	           <div>
 	             <div class="hero-text">
@@ -30,39 +30,10 @@ get_header(); ?>
 	      </div>
 	    <?php } ?>
 
-		<div class="container-fluid">
-
       <!-- Store Locator Map -->
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-3 search-column">
-              <form class="store-locator" onsubmit="return newMap()">
-	              <h3>Store Locator</h3>
-                <div class="form-group">
-                  <label>Zip Code</label>
-                  <input id="zip-val" value="<?php echo $zip; ?>" type="text" class="form-control" name="zip" />
-                </div>
-
-                <div class="form-group">
-                  <label>Brand</label>
-                  <select id="brand-val" class="form-control" name="brand">
-                    <option value="all">All Brands</option>
-										<?php foreach($brandList as $b){ ?>
-											<option value="<?php echo $b ?>" <?php if (strcasecmp($b, $brand) == 0){echo 'selected';}?>>
-												<?php echo $b ?>
-											</option>
-										<?php }?>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <input type="submit" value="Search" class="button search"/>
-                </div>
-              </form>
-
-
-          </div> <!-- .col-3 -->
-          <div class="col-md-9 map-column">
+				<div class="flex-row">
+					<div class="content">
 						<?php if ($firstVisit) {
 				      while ( have_posts() ) : the_post(); ?>
 								<div class="col-lg-10 col-md-10 store-intro">
@@ -94,8 +65,33 @@ get_header(); ?>
             	<div id="map" style="width:100%; height:400px;"></div>
 						<?php
 						} ?>
-          </div>	<!-- col-9 -->
-        </div> <!-- row -->
+					</div>
+					<div class="aside">
+						<form class="store-locator" onsubmit="return newMap()">
+							<h3>Store Locator</h3>
+							<div class="form-group">
+								<label>Zip Code</label>
+								<input id="zip-val" value="<?php echo $zip; ?>" type="text" class="form-control" name="zip" />
+							</div>
+
+							<div class="form-group">
+								<label>Brand</label>
+								<select id="brand-val" class="form-control" name="brand">
+									<option value="all">All Brands</option>
+									<?php foreach($brandList as $b){ ?>
+										<option value="<?php echo $b ?>" <?php if (strcasecmp($b, $brand) == 0){echo 'selected';}?>>
+											<?php echo $b ?>
+										</option>
+									<?php }?>
+								</select>
+							</div>
+
+							<div class="form-group">
+								<input type="submit" value="Search" class="button search"/>
+							</div>
+						</form>
+					</div>
+				</div>
 
 				<?php if (!$firstVisit) { ?>
 				<div class="row">
@@ -108,7 +104,6 @@ get_header(); ?>
 				} ?>
 
       </div> <!-- container-fluid -->
-		</div>
 		</main><!-- #main -->
 	</div><!-- #primary -->
 

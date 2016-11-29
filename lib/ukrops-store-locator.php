@@ -12,6 +12,11 @@ function store_table() {
   include('views/store-table.php');
 }
 
+function edit_store() {
+  $data = getStores();
+  include('views/edit.php');
+}
+
 function handle_post(){
 
 	if(isset($_POST["submit"]) && isset($_FILES['store-file'])) {

@@ -25,6 +25,7 @@
     }
 
     $storeJSON = 	'{'.
+                  '"id": "'       . $store->id      .'", '.
                   '"address": "' 	. $store->address . '", '.
                   '"name": "' 		. $store->store_name . '", '.
                   '"brand": [' 		. $brandsArray . '], '.
