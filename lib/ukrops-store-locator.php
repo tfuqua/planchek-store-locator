@@ -6,10 +6,23 @@ function import_stores() {
 	include('views/import-stores.php');
 }
 
-
 function store_table() {
-  $data = getStores();
-  include('views/store-table.php');
+	$id = $_GET["id"];
+
+	if (isset($id)){ //Edit View
+		$data = getStoreById($id);
+	  include('views/edit-store.php');
+
+	} else { //Table View
+		$data = getStores();
+	  include('views/store-table.php');
+	}
+
+}
+
+function google_api_key() {
+	$data = getAPIKey();
+	include('views/google-api.php');
 }
 
 function edit_store() {
@@ -41,13 +54,61 @@ function handle_post(){
   }
 }
 
+function handle_google_api_post(){
+
+	if(isset($_POST["submit"]) && $_POST["action"] == "google_api_key") {
+		$key = $_POST["key"];
+
+		global $wpdb;
+		$table_name = $wpdb->prefix . "stores_google_api";
+		$wpdb->query($wpdb->prepare("UPDATE $table_name SET api_key='$key' WHERE id=1"));
+
+
+		wp_redirect(admin_url('admin.php?page=api_key'));
+	}
+}
+
+function handle_store_post(){
+
+	if(isset($_POST["submit"]) && $_POST["action"] == "edit_store") {
+
+		$line = array();
+		$id 		 = $_POST["id"];
+		$line[0] = $_POST["brands"];
+		$line[1] = $_POST["store_name"];
+		$line[2] = $_POST["address"];
+		$line[3] = $_POST["city"];
+		$line[4] = $_POST["state"];
+		$line[5] = $_POST["zip"];
+		$line[6] = $_POST["phone"];
+		$line[7] = $_POST["products"];
+
+		updateStore($line, $id);
+
+		wp_redirect(admin_url('admin.php?page=stores'));
+	}
+}
+
 function getStores(){
 	global $wpdb;
 	$table_name = $wpdb->prefix . "stores";
-
 	$rows = $wpdb->get_results( "SELECT * FROM $table_name" );
-
 	return ($rows);
+}
+
+function getAPIKey(){
+	global $wpdb;
+	$table_name = $wpdb->prefix . "stores_google_api";
+	$rows = $wpdb->get_results( "SELECT * FROM $table_name where ID = 1" );
+
+	return ($rows[0]);
+}
+
+function getStoreById($id){
+	global $wpdb;
+	$table_name = $wpdb->prefix . "stores";
+	$rows = $wpdb->get_results( "SELECT * FROM $table_name where ID=$id" );
+	return ($rows[0]);
 }
 
 function deleteRecords(){
@@ -92,6 +153,44 @@ function insertRecord($line, $id){
 				'longitude'   => $long,
 			)
 		);
+	}
+}
+
+
+function updateStore($line, $id){
+
+	$valid = validateStore($line);
+
+	global $wpdb;
+	$table_name = $wpdb->prefix . "stores";
+	$address = $line[2]. ', '.$line[3] . '+' . $line[4] . '+' . $line[5];
+
+	$addressInfo = googleAPILookup($address);
+	$lat = null;
+	$long = null;
+
+	if ($addressInfo != null){
+		$lat = $addressInfo['latitude'];
+		$long = $addressInfo['longitude'];
+
+		$brands = trimBrands($line[0]);
+		//$brands = ;
+
+
+		$query = "UPDATE $table_name SET
+							brand 			= ".serialize($brands).",
+							store_name 	= '$line[1]',
+							address 		= '$line[2]',
+							city 				= '$line[3]',
+							state 			=	'$line[4]',
+							zip					= '$line[5]',
+							phone 			= '$line[6]',
+							products  	= '$line[7]',
+							latitude 		= '$lat',
+							longitude   = '$long'
+							WHERE id= $id;";
+
+		$wpdb->query($wpdb->prepare($query));
 	}
 }
 
@@ -146,8 +245,9 @@ function getBrands(){
 
 function googleAPILookup($address){
 
+	$creds = getAPIKey();
   $address = str_replace (" ", "+", urlencode($address));
-  $details_url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$address."&key=AIzaSyAGkVBDxjmBGDRlTyqiTLi5qJUu4AP_S3o";
+  $details_url = "https://maps.googleapis.com/maps/api/geocode/json?address=".$address."&key=".$creds->api_key;
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $details_url);

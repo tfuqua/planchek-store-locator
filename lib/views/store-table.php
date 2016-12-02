@@ -1,11 +1,10 @@
 
 <div class="wrap">
-<h1>Urkops Store Data</h1>
+<h1>Ukrops Store Data</h1>
 
 <br />
 
 <table id="store-table" class="table table-bordered table-striped store-locator"></table>
-
 
 <?php
   $i = 1;

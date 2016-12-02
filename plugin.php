@@ -51,6 +51,8 @@ class Ukrops_Store_Plugin {
 		self::setupDB();
 		add_action( 'admin_menu', array( 'Ukrops_Store_Plugin', 'create_menus' ));
 		add_action( 'admin_post_store_form', handle_post()); //Handle Post
+		add_action( 'google_api_form', handle_google_api_post()); //Handle Post
+		add_action( 'handle_store_post', handle_store_post());
 	}
 
 	public function create_menus() {
@@ -61,6 +63,9 @@ class Ukrops_Store_Plugin {
 
 		add_submenu_page('stores', 'Page Title', 'Import Stores', 'manage_options',
 		'data', 'import_stores');
+
+		add_submenu_page('stores', 'Page Title', 'Google API Key', 'manage_options',
+		'api_key', 'google_api_key');
 	}
 
 	public function view_project_template( $template ) {
@@ -81,6 +86,7 @@ class Ukrops_Store_Plugin {
 
 			$data = getStores();
 			$brandList = getBrands();
+			$creds = getAPIKey();
 
 			$zip = $_GET["zip"];
 			$brand = $_GET["brand"];
@@ -122,6 +128,7 @@ class Ukrops_Store_Plugin {
     $table_name = $wpdb->prefix . "stores";
 		$charset_collate = $wpdb->get_charset_collate();
 
+			//Create Store Table
 			$sql = "CREATE TABLE $table_name (
 			  id mediumint(9) NOT NULL AUTO_INCREMENT,
 			  brand varchar(255) NOT NULL,
@@ -137,6 +144,14 @@ class Ukrops_Store_Plugin {
 			  PRIMARY KEY  (id)
 			) $charset_collate;";
 
+			//Create Google Creds Table
+			$table_name = $wpdb->prefix . "stores_google_api";
+			$sql = "CREATE TABLE $table_name (
+				id mediumint(9) NOT NULL AUTO_INCREMENT,
+				api_key varchar(255) NOT NULL,
+				PRIMARY KEY  (id)
+			) $charset_collate;";
+
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $sql );
 	}
@@ -144,10 +159,12 @@ class Ukrops_Store_Plugin {
 
 function store_scripts() {
 
+	$creds = getAPIKey();
+	$googleMaps = "https://maps.googleapis.com/maps/api/js?key=". $creds->api_key ."&libraries=geometry";
 	//Only load scripts on page that needs them
 	if (get_page_template_slug() == 'lib/views/store-locator.php') {
 		wp_enqueue_script( 'datatables', 'https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js' , array('ukrops-jquery'), '1.0', true);
-		wp_enqueue_script( 'google-maps', 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAGkVBDxjmBGDRlTyqiTLi5qJUu4AP_S3o&libraries=geometry', array(), '1.0', true);
+		wp_enqueue_script( 'google-maps', $googleMaps, array(), '1.0', true);
 		wp_enqueue_script( 'store-js', plugin_dir_url( __FILE__ ) . 'lib/js/store-locator.js', array('google-maps'), '1.0', true);
 	} else {
 
