@@ -61,7 +61,7 @@ function handle_google_api_post(){
 
 		global $wpdb;
 		$table_name = $wpdb->prefix . "stores_google_api";
-		$wpdb->query($wpdb->prepare("UPDATE $table_name SET api_key='$key' WHERE id=1"));
+		$wpdb->query($wpdb->prepare("UPDATE $table_name SET api_key='$key' WHERE id= %d", 1));
 
 
 		wp_redirect(admin_url('admin.php?page=api_key'));
@@ -74,7 +74,7 @@ function handle_store_post(){
 
 		$line = array();
 		$id 		 = $_POST["id"];
-		$line[0] = $_POST["brands"];
+		$line[0] = stripslashes($_POST["brands"]);
 		$line[1] = $_POST["store_name"];
 		$line[2] = $_POST["address"];
 		$line[3] = $_POST["city"];
@@ -83,7 +83,7 @@ function handle_store_post(){
 		$line[6] = $_POST["phone"];
 		$line[7] = $_POST["products"];
 
-		updateStore($line, $id);
+		insertRecord($line, $id);
 
 		wp_redirect(admin_url('admin.php?page=stores'));
 	}
@@ -137,7 +137,7 @@ function insertRecord($line, $id){
 
 		$brands = trimBrands($line[0]);
 
-		$wpdb->insert(
+		$wpdb->replace(
 			$table_name,
 			array(
 				'id' 					=> $id,
@@ -174,23 +174,24 @@ function updateStore($line, $id){
 		$long = $addressInfo['longitude'];
 
 		$brands = trimBrands($line[0]);
-		//$brands = ;
+		$brands = serialize($brands);
 
+				$query = "UPDATE $table_name SET
+									brand 			= '$brands',
+									store_name 	= '$line[1]',
+									address 		= '$line[2]',
+									city 				= '$line[3]',
+									state 			=	'$line[4]',
+									zip					= '$line[5]',
+									phone 			= '$line[6]',
+									products  	= '$line[7]',
+									latitude 		= '$lat',
+									longitude   = '$long'
+									WHERE id = %d";
 
-		$query = "UPDATE $table_name SET
-							brand 			= ".serialize($brands).",
-							store_name 	= '$line[1]',
-							address 		= '$line[2]',
-							city 				= '$line[3]',
-							state 			=	'$line[4]',
-							zip					= '$line[5]',
-							phone 			= '$line[6]',
-							products  	= '$line[7]',
-							latitude 		= '$lat',
-							longitude   = '$long'
-							WHERE id= $id;";
+				$wpdb->query($wpdb->prepare($query, $id));
 
-		$wpdb->query($wpdb->prepare($query));
+			return;
 	}
 }
 
@@ -215,7 +216,7 @@ function trimBrands($line){
 	$brands = explode(',', $line);
 
 	foreach($brands as $brand){
-		if (! empty($brand)) {
+		if (!empty($brand)) {
 			$brand = trim($brand);
 			array_push($brandsArr, $brand);
 		}
