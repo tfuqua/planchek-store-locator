@@ -31,13 +31,13 @@ get_header(); ?>
 	    <?php } ?>
 
       <!-- Store Locator Map -->
-      <div class="container-fluid">
-				<div class="row">
-					<div class="col-md-3 search-column">
+      <div class="container-fluid store-locator-div">
+				<div class="flex-row">
+					<div class="aside">
 						<form class="store-locator" onsubmit="return newMap()">
 							<h3>Store Locator</h3>
 							<div class="form-group">
-								<label>Zip Code</label>
+								<label>ZIP Code</label>
 								<input id="zip-val" value="<?php echo $zip; ?>" type="text" class="form-control" name="zip" />
 							</div>
 
@@ -59,7 +59,7 @@ get_header(); ?>
 						</form>
 					</div>
 
-					<div class="col-md-9 map-column">
+					<div class="content">
 						<?php if ($firstVisit) {
 				      while ( have_posts() ) : the_post(); ?>
 								<div class="col-lg-10 col-md-10 store-intro">
